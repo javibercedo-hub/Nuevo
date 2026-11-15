@@ -8,13 +8,13 @@ Historial de reels aprobados. Lo escribe `/ig-reel` al decir "sí" y lo lee `/ig
 - **Primera línea:** "Me piden 10 antibióticos sin receta por semana."
 - **Hook:** 77,8 STRONG · **Duración:** 30,2 s, 11 frases · **Humanizer:** 58,8 REVIEW
 - **Formato:** voz en off / detrás del mostrador
-- **Estado:** vídeo de solo texto generado (`reels/2026-11-15-antibiotico/reel-antibiotico.mp4`, 38 s, sin audio: música en Instagram). Pendiente de publicar.
+- **Estado:** vídeo de solo texto generado (`reels/2026-11-15-antibiotico/reel-antibiotico.mp4`, 42 s, animación por frase y cierre con el logo, sin audio: música en Instagram). Pendiente de publicar.
 
 ```
 Me piden 10 antibióticos sin receta por semana.
 A los 10, no.
 Una clienta me dijo: «El jefe me lo da sin receta».
-El jefe soy yo.
+Aquí nadie lo da sin receta. Ni yo.
 El antibiótico mata bacterias. Nada más.
 Y casi todos los catarros que veo son virus.
 Si lo tomas sin necesitarlo, las bacterias aprenden a resistirlo.

@@ -22,7 +22,8 @@ grabados, revisarlo con tres de ellos.
 
 ## Quién soy
 
-- **Nombre:** {{nombre}}
+- **Nombre:** {{tu nombre}}
+- **Farmacia:** Farmacia de la Esperanza (Santander). Logo en `reels/assets/logo-esperanza.png`: mortero azul con cruz blanca y letras verdes.
 - **Usuario de Instagram:** {{usuario}}
 - **Qué soy:** farmacéutico y titular de mi propia farmacia, pequeña, en
   Santander. Trabajo con mi equipo ("las chicas").
@@ -46,6 +47,7 @@ grabados, revisarlo con tres de ellos.
   gente lo que necesita, sin rodeos.
 - **Humor:** lo tengo, pero en lo profesional mando la seriedad. Como mucho, un
   toque ligero al final; nunca bromas con la salud de nadie.
+- **Nada que suene prepotente** ni a "aquí mando yo" (descartado: "El jefe soy yo"). Hablo como uno más del equipo: "aquí nadie lo da sin receta. Ni yo."
 - **Frases:** cortas, directas, sin adornos. Hablo en primera persona y llamo a
   las cosas por su nombre.
 - **Palabras y expresiones que uso de verdad:** "obviamente", "en realidad",
@@ -85,7 +87,7 @@ Historias reales que firmo. Los skills nunca se inventan una, así que lo que no
 esté aquí sale como `{{tu cifra}}` o `{{tu caso}}`.
 
 - Una clienta pidió un antibiótico sin receta diciendo que "el jefe se lo
-  daba". El jefe soy yo, y sin receta no se da. Mi equipo se lo explicó y se fue
+  daba". En la farmacia nadie lo da sin receta, tampoco yo. Mi equipo se lo explicó y se fue
   medio enfadada. No queremos que nadie se vaya enfadado de la farmacia, pero
   esto no se negocia.
 - Me piden unos 10 antibióticos sin receta por semana, y a todos les digo que no.
