@@ -25,17 +25,34 @@ import argparse
 import json
 import re
 import sys
+import unicodedata
 
-WORD_RE = re.compile(r"[A-Za-z0-9$%'’-]+")
+# Bilingual: English plus Spanish as spoken in Spain.
+WORD_RE = re.compile(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9$€%'’-]+")
 SENT_RE = re.compile(r"[^.!?]+[.!?]*")
-CONCRETE_RE = re.compile(r"\$\s?\d|\b\d[\d,.]*\b|(?<!^)\b[A-Z][a-z]{2,}\b", re.MULTILINE)
+CONCRETE_RE = re.compile(r"[$€]\s?\d|\b\d[\d,.]*\b|(?<!^)\b[A-ZÁÉÍÓÚÑ][a-záéíóúüñ]{2,}\b",
+                         re.MULTILINE)
 STOPWORDS = {
     "the", "a", "an", "and", "or", "but", "if", "of", "to", "in", "on", "for",
     "with", "that", "this", "it", "is", "are", "was", "were", "be", "been",
     "you", "your", "i", "my", "me", "we", "our", "they", "them", "he", "she",
     "so", "just", "not", "no", "do", "did", "does", "have", "has", "had",
     "will", "can", "at", "as", "by", "from", "out", "up", "off", "one", "all",
+    # es-ES, sin tildes (se comparan tras quitarlas)
+    "el", "la", "los", "las", "un", "una", "unos", "unas", "y", "e", "o", "u",
+    "pero", "si", "de", "del", "al", "en", "con", "por", "para", "que", "es",
+    "son", "era", "fue", "ser", "esto", "esta", "este", "eso", "lo", "le",
+    "les", "se", "te", "tu", "tus", "mi", "mis", "yo", "nos", "os", "su",
+    "sus", "ya", "ni", "muy", "mas", "como", "cuando", "hay", "he", "ha",
+    "has", "han", "tengo", "tiene", "uno", "todo", "todos", "asi", "pues",
+    "solo", "porque", "ahora", "vosotros", "nosotros",
 }
+
+
+def fold(text):
+    """Lower-case and drop accents so the loop check matches 'vídeo' to 'video'."""
+    t = unicodedata.normalize("NFD", text.lower())
+    return "".join(c for c in t if unicodedata.category(c) != "Mn")
 
 HOOK_WINDOW = 3.0        # seconds. Past this, the thumb has already decided.
 MAX_BEAT = 4.0           # seconds on one idea with no change on screen.
@@ -44,12 +61,13 @@ ABSTRACT_RUN = 3         # beats in a row with nothing checkable in them.
 
 def words(text):
     # "$18,000" is one word when it is spoken, so it is one word here too.
-    return WORD_RE.findall(re.sub(r"(?<=\d),(?=\d)", "", text))
+    # Spain writes thousands with a dot ("18.000 €"), so both separators go.
+    return WORD_RE.findall(re.sub(r"(?<=\d)[.,](?=\d{3}\b)", "", text))
 
 
-def pretty(token):
-    """Put the thousands separator back for display."""
-    return re.sub(r"(\d)(?=(\d{3})+$)", r"\1,", token)
+def pretty(token, sep=","):
+    """Put the thousands separator back for display ("." if the script used it)."""
+    return re.sub(r"(\d)(?=(\d{3})+$)", r"\1" + sep, token)
 
 
 def tc(seconds):
@@ -146,9 +164,10 @@ def analyse(raw, wpm=165, target=None):
             run, start = 0, None
 
     # Does the last line hand you back to the first one?
-    first = {w.lower() for w in words(rows[0]["text"]) if w.lower() not in STOPWORDS}
-    last = {w.lower() for w in words(rows[-1]["text"]) if w.lower() not in STOPWORDS}
-    loop = sorted(pretty(w) for w in first & last)
+    first = {fold(w) for w in words(rows[0]["text"]) if fold(w) not in STOPWORDS}
+    last = {fold(w) for w in words(rows[-1]["text"]) if fold(w) not in STOPWORDS}
+    sep = "." if re.search(r"\d\.\d{3}\b", raw) else ","
+    loop = sorted(pretty(w, sep) for w in first & last)
     if loop:
         notes.append(f"Loops: the last beat repeats \"{', '.join(loop[:3])}\" from the hook. "
                      "Second watches are free reach.")

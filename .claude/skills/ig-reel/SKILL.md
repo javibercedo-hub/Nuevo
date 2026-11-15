@@ -22,6 +22,15 @@ python3 hookscore.py --hook "one line"      # score a single one
 python3 beats.py script.txt --target 30     # timed beat sheet before you shoot
 ```
 
+## Language
+
+Both tools score English and Spanish. When the Reel is in Spanish, write it
+in Spanish from Spain unless `voice.md` says otherwise: tú and vosotros (never
+vos or voseo forms like "adaptá", "mirá", "tenés"), "vídeo" with the accent,
+euros written as "18.000 €", and Spain's own vocabulary ("móvil", "ordenador",
+"coger", "vale"), not Latin American usage. Translate the formulas in
+`hooks.json` into how a Spaniard would say them out loud; never word-for-word.
+
 ## Before you write
 
 1. Read `~/.claude/instagram/voice.md` if it exists. That is the user's voice
