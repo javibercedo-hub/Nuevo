@@ -88,6 +88,7 @@ esté aquí sale como `{{tu cifra}}` o `{{tu caso}}`.
   daba". El jefe soy yo, y sin receta no se da. Mi equipo se lo explicó y se fue
   medio enfadada. No queremos que nadie se vaya enfadado de la farmacia, pero
   esto no se negocia.
+- Me piden unos 10 antibióticos sin receta por semana, y a todos les digo que no.
 - {{otra historia o cifra}}
 
 ## La llamada a la acción
