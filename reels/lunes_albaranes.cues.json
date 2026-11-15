@@ -1,0 +1,55 @@
+{
+ "fps": 30,
+ "events": [
+  {
+   "id": "reel:hit:0",
+   "f": 0.0,
+   "kind": "hit"
+  },
+  {
+   "id": "reel:pop0:1",
+   "f": 88.2,
+   "kind": "pop"
+  },
+  {
+   "id": "reel:pop1:2",
+   "f": 145.2,
+   "kind": "pop"
+  },
+  {
+   "id": "reel:pop2:3",
+   "f": 204.3,
+   "kind": "pop"
+  },
+  {
+   "id": "reel:pop3:4",
+   "f": 274.5,
+   "kind": "pop"
+  },
+  {
+   "id": "reel:pop4:5",
+   "f": 340.2,
+   "kind": "pop"
+  },
+  {
+   "id": "reel:pop5:6",
+   "f": 420.3,
+   "kind": "pop"
+  },
+  {
+   "id": "reel:bell:7",
+   "f": 496.2,
+   "kind": "bell"
+  },
+  {
+   "id": "reel:cta:8",
+   "f": 562.5,
+   "kind": "bell"
+  },
+  {
+   "id": "reel:swish:9",
+   "f": 264.0,
+   "kind": "whoosh"
+  }
+ ]
+}
