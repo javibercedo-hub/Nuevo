@@ -1,6 +1,6 @@
 # Guion de voz en off: "El del boli" (Altissia)
 
-Duración del vídeo: **26 segundos**. Tono: cómplice, con guasa, como quien cuenta un drama
+Duración del vídeo: **34,8 segundos** en la versión montada (1 s entre frases). Tono: cómplice, con guasa, como quien cuenta un drama
 de trabajo a un compañero. Ritmo ágil (unas 165 palabras por minuto), sin prisa en los remates.
 
 Cada frase tiene su ventana en el vídeo. Si la voz cae dentro de la ventana, cuadra con la
@@ -14,8 +14,8 @@ animación. Si sobra tiempo, mejor un silencio al final de la ventana que estira
 | 0:07,6 – 0:10,4 | **un subrayador y un café frío.** | Pausa mínima antes de "café frío", dicho con pena. |
 | 0:10,4 – 0:13,4 | **Se te escapa un error y adiós margen.** | "Adiós margen" como quien despide a alguien. |
 | 0:13,4 – 0:15,0 | **Tu compañera usa Altissia.** | Cambio de tono: aquí cambia la música. Más ligero, casi con envidia. |
-| 0:15,0 – 0:18,2 | **Más de 500 albaranes en unos 5 segundos.** | Claro y limpio, es el dato. |
-| 0:18,2 – 0:20,3 | **Mira solo las diferencias. Café.** | "Café" seco, de remate. |
+| 0:15,0 – 0:18,2 | **Coteja más de 500 albaranes en unos 5 segundos.** | Claro y limpio, es el dato. |
+| 0:18,2 – 0:20,3 | **Revisas solo las diferencias y… café.** | "Café" seco, de remate. |
 | 0:20,3 – 0:22,4 | **Tú vas por el 37.** | Remate: pausa corta antes, dicho con resignación. |
 | 0:22,4 – 0:26,0 | **Etiqueta a quien sigue cotejando albaranes con boli.** | Sonriendo, invitando. |
 
@@ -27,8 +27,8 @@ Cinco años de carrera.
 Para acabar comparando precios línea a línea con un boli... un subrayador y un café frío.
 Se te escapa un error y adiós margen.
 Tu compañera usa Altissia.
-Más de 500 albaranes en unos 5 segundos.
-Mira solo las diferencias. Café.
+Coteja más de 500 albaranes en unos 5 segundos.
+Revisas solo las diferencias y... café.
 Tú vas por el 37.
 Etiqueta a quien sigue cotejando albaranes con boli.
 ```
@@ -57,6 +57,8 @@ Etiqueta a quien sigue cotejando albaranes con boli.
 Locución: `locucion_elevenlabs.mp3` (ElevenLabs, voz en castellano). Cómo se ha montado:
 
 1. `faster-whisper` transcribe la voz palabra a palabra (`words.json`).
+   `respace.py words.json voz48.wav 1.0 voz_esp.wav timing.json` corta la locución en sus 10 frases
+   por los silencios y las vuelve a montar con **1 s entre frase y frase** (versión actual, 34,8 s).
 2. `timing.py words.json voz48.wav timing.json` saca dónde empieza cada frase (ajustado con la
    energía de la voz) y las palabras clave ("frío", "error", "adiós", "500", "café", "37").
 3. `music.py` se genera a `7*4*60/inicio_Altissia` BPM, para que el cambio de la música caiga

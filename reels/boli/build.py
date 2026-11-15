@@ -21,6 +21,7 @@ YELLOW, CREAM, CHAOS, CALM = (255, 214, 64), (255, 244, 224), (255, 236, 214), (
 NOTE = "Casos comunicados por Altissia. Resultados variables."
 X0, MAXW = 80, 770                       # zona segura: x 80-850, y 230-1440
 TEXT_Y, ART_C = 300, (465, 1060)          # texto arriba, ilustración centrada aquí
+XFADE = 0.3                              # fundido entre diapositivas
 
 # escenas: (inicio, fin, línea de la voz en off, tarjetas [(texto, estilo)], tipo de dibujo)
 SCENES = [
@@ -30,8 +31,8 @@ SCENES = [
     (7.6, 10.4, "un subrayador y un café frío.", [("Y un café", "n"), ("frío", "h")], "coffee"),
     (10.4, 13.4, "Se te escapa un error y adiós margen.", [("Un error y…", "n"), ("adiós margen", "r")], "money"),
     (13.4, 15.0, "Tu compañera usa Altissia.", [("Tu compañera", "n"), ("usa Altissia", "g")], "colleague"),
-    (15.0, 18.2, "Más de 500 albaranes en unos 5 segundos.", [("500+ albaranes", "g"), ("en ≈5 segundos", "n")], "laptop"),
-    (18.2, 20.3, "Mira solo las diferencias. Café.", [("Solo las diferencias", "n"), ("y a por café", "g")], "diff"),
+    (15.0, 18.2, "Coteja más de 500 albaranes en unos 5 segundos.", [("500+ albaranes", "g"), ("en ≈5 segundos", "n")], "laptop"),
+    (18.2, 20.3, "Revisas solo las diferencias y… café.", [("Solo las diferencias", "n"), ("y… café", "g")], "diff"),
     (20.3, 22.4, "Tú vas por el 37.", [("Tú vas", "n"), ("por el 37", "r")], "behind"),
     (22.4, 26.0, "Etiqueta a quien sigue cotejando albaranes con boli.", [("Etiqueta al", "n"), ("del boli 🖊", "h")], "cta"),
 ]
@@ -337,6 +338,7 @@ def main():
                             "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-crf", "18", "-preset", "medium",
                             "-pix_fmt", "yuv420p", tmp_v], stdin=subprocess.PIPE)
     nfr = int(round(TOTAL * FPS))
+    last_frame = {}
     for n in range(nfr):
         T = n / FPS
         idx = max(i for i, s in enumerate(SCENES) if s[0] <= T + 1e-9)
@@ -347,11 +349,13 @@ def main():
         draw_cards(im, cards, t, idx == 0)
         if idx >= 6:
             im.alpha_composite(note, (X0, 1450 - 40))
-        if t < 0.12 and idx > 0:                          # pequeño flash de transición
-            fl = Image.new("RGBA", (W, H), (255, 255, 255, int(200 * (1 - t / 0.12))))
-            im.alpha_composite(fl)
-        if chaos and idx in (0, 4) and t < 0.35:          # temblor de cámara en los golpes
-            dx = int(14 * math.sin(t * 90) * (1 - t / 0.35))
+        if idx > 0 and t < XFADE and idx - 1 in last_frame:   # fundido suave desde la diapositiva anterior
+            im = Image.blend(last_frame[idx - 1], im, ease_out(t / XFADE))
+        if T + 1 / FPS >= s1 - 1e-9:
+            last_frame[idx] = im.copy()
+        ts = t if idx == 0 else t - rel("error", 4, 0.2) if idx == 4 else -1
+        if chaos and 0 <= ts < 0.35:                      # temblor de cámara: al empezar y con el sello de ERROR
+            dx = int(14 * math.sin(ts * 90) * (1 - ts / 0.35))
             im = im.transform(im.size, Image.AFFINE, (1, 0, dx, 0, 1, 0), fillcolor=CHAOS + (255,))
         enc.stdin.write(im.convert("RGB").tobytes())
     enc.stdin.close(); enc.wait()
