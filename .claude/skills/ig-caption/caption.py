@@ -51,6 +51,16 @@ ASKS = [
     (re.compile(r"(?i)\blink in (?:my )?bio\b"), "link in bio"),
     (re.compile(r"(?i)\b(?:swipe|tap) (?:through|left|right|for|to)\b"), "swipe or tap"),
     (re.compile(r"(?i)\btell me\b|\bwhat would you\b|\bwhich one\b"), "answer a question"),
+    # español de España
+    (re.compile(r"(?i)\bcomenta (?:la palabra |\")?[A-ZÁÉÍÓÚÑ0-9]{2,}\b"), "comment a keyword"),
+    (re.compile(r"(?i)\b(?:etiqueta|menciona) a\b"), "tag someone"),
+    (re.compile(r"(?i)\b(?:escr[íi]beme|m[aá]ndame un (?:md|dm|mensaje)|p[ií]demelo por (?:md|dm))\b"), "DM me"),
+    (re.compile(r"(?i)\bgu[aá]rd(?:alo|ate esto|a este)\b"), "save this"),
+    (re.compile(r"(?i)\bcompr[aá]rtelo|\bcomp[aá]rtelo\b|\bcomparte (?:esto|este)\b"), "share this"),
+    (re.compile(r"(?i)\bs[ií]gueme\b"), "follow"),
+    (re.compile(r"(?i)\benlace en (?:la|mi) bio\b"), "link in bio"),
+    (re.compile(r"(?i)\bdesliza\b"), "swipe or tap"),
+    (re.compile(r"(?i)\bcu[eé]ntame\b|\bdime (?:qu[eé]|cu[aá]l)\b|¿cu[aá]l (?:prefieres|eliges)\b"), "answer a question"),
 ]
 
 FILLER_TAGS = {"#viral", "#fyp", "#explore", "#explorepage", "#foryou", "#foryoupage",
