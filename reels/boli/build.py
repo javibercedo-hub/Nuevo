@@ -1,14 +1,17 @@
 """Reel animado "el del boli" (Altissia, cotejo de albaranes). 1080x1920, 30 fps, sin voz.
 
-uso: python3 -I build.py VIDEO_ALTISSIA SALIDA.mp4 MUSICA.wav CARPETA_SFX
-Escribe también SALIDA_music.wav, SALIDA_sfx.wav (pistas sueltas) y SALIDA.cues.json.
-La voz en off se graba aparte con el guion (guion_voz.md) y se pone encima.
+uso: python3 -I build.py VIDEO_ALTISSIA SALIDA.mp4 MUSICA.wav CARPETA_SFX [TIMING.json VOZ.wav]
+Sin voz: tiempos por defecto. Con TIMING.json (escenas y marcas sacadas de la locución) y VOZ.wav:
+las escenas siguen a la voz, la voz va a -16 LUFS y la música se aparta cuando habla.
+Escribe también SALIDA_music.wav, SALIDA_sfx.wav (y SALIDA_voz.wav) y SALIDA.cues.json.
 """
 import json, math, os, subprocess, sys
 import numpy as np, soundfile as sf
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 SRC, OUT, MUSIC, SFX = sys.argv[1:5]
+TIMING = json.load(open(sys.argv[5])) if len(sys.argv) > 5 else None
+VO = sys.argv[6] if len(sys.argv) > 6 else None
 FPS, SR, W, H = 30, 48000, 1080, 1920
 FB = "/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf"
 FM = "/usr/share/fonts/opentype/inter/Inter-Medium.otf"
@@ -32,7 +35,16 @@ SCENES = [
     (20.3, 22.4, "Tú vas por el 37.", [("Tú vas", "n"), ("por el 37", "r")], "behind"),
     (22.4, 26.0, "Etiqueta a quien sigue cotejando albaranes con boli.", [("Etiqueta al", "n"), ("del boli 🖊", "h")], "cta"),
 ]
+if TIMING:                                # la imagen sigue a la locución
+    st = TIMING["scenes"] + [TIMING["end"]]
+    SCENES = [(st[i], st[i + 1]) + tuple(s[2:]) for i, s in enumerate(SCENES)]
+MARKS = (TIMING or {}).get("marks", {})
 TOTAL = SCENES[-1][1]
+
+
+def rel(key, scene, default):
+    """Segundos desde el inicio de la escena hasta la palabra marcada en la voz."""
+    return MARKS[key] - SCENES[scene][0] if key in MARKS else default
 _fonts, _emoji = {}, {}
 
 
@@ -196,13 +208,13 @@ def art_coffee(b, t, d):
     for i in range(5):                                     # copos que caen sobre el café
         y = 820 + ((t * 260 + i * 110) % 420)
         paste(b, emoji("❄", 60), ART_C[0] + 20 + i * 55, y, alpha=0.9)
-    paste(b, emoji("🥶", 190), ART_C[0] + 260, 830, scale=ease_back((t - 0.6) / 0.3))
+    paste(b, emoji("🥶", 190), ART_C[0] + 260, 830, scale=ease_back((t - rel("frio", 3, 0.6)) / 0.3))
 
 
 def art_money(b, t, d):
     ground(b, (240, 214, 186))
     paste(b, doc(380, 460, lines=8, red=5), ART_C[0] - 80, 1130)
-    stamp = ease_back((t - 0.2) / 0.25, 2.6)
+    stamp = ease_back((t - rel("error", 4, 0.2)) / 0.25, 2.6)
     if stamp > 0:
         tag = Image.new("RGBA", (340, 130), (0, 0, 0, 0))
         dd = ImageDraw.Draw(tag)
@@ -210,7 +222,7 @@ def art_money(b, t, d):
         dd.text((170, 66), "ERROR", font=font(FB, 84), fill=RED, anchor="mm")
         paste(b, tag, ART_C[0] - 80, 1150, scale=0.6 + 0.4 * stamp, rot=-14)
     for i in range(7):                                     # billetes que se van volando
-        s = 0.9 + i * 0.22
+        s = rel("adios", 4, 0.9) + i * 0.22
         if t < s:
             continue
         p = (t - s) / 1.4
@@ -242,7 +254,7 @@ def laptop(d, screen):
 def art_laptop(b, t, d):
     ground(b, (205, 228, 238))
     paste(b, d["laptop"], ART_C[0] + 10, 1130, scale=0.98 + 0.02 * ease_out(t / 3))
-    n = int(500 * ease_out((t - 0.3) / 1.1))
+    n = int(500 * ease_out((t - rel("quinientos", 6, 0.55) + 0.25) / 1.1))
     tag = Image.new("RGBA", (420, 150), (0, 0, 0, 0))
     dd = ImageDraw.Draw(tag)
     dd.rounded_rectangle((0, 0, 416, 146), 30, fill=GREEN)
@@ -257,7 +269,7 @@ def art_diff(b, t, d):
     pulse = 1 + 0.08 * math.sin(t * 9)
     ImageDraw.Draw(b).ellipse((130, 1050, 320, 1200), outline=RED, width=9)   # rodea la flecha roja de Cotejo
     paste(b, emoji("👉", 110), 75, 1125, scale=pulse)
-    s = ease_back((t - 0.9) / 0.35)
+    s = ease_back((t - rel("cafe", 7, 0.9)) / 0.35)
     paste(b, emoji("☕", 200), ART_C[0] + 270, 860, scale=s, rot=-10 * math.sin(t * 3))
     paste(b, emoji("😎", 150), ART_C[0] + 120, 830, scale=s)
 
@@ -271,7 +283,7 @@ def art_behind(b, t, d):
     dd = ImageDraw.Draw(tag)
     dd.rounded_rectangle((0, 0, 416, 146), 30, fill=WHITE, outline=RED, width=8)
     dd.text((208, 76), "37 / 500", font=font(FB, 84), fill=RED, anchor="mm")
-    paste(b, tag, ART_C[0] - 120, 830, scale=ease_back(t / 0.3), rot=6)
+    paste(b, tag, ART_C[0] - 120, 830, scale=ease_back((t - rel("treinta", 8, 0.15) + 0.15) / 0.3), rot=6)
     paste(b, emoji("😵", 200), ART_C[0] + 270, 1060, rot=12 * math.sin(t * 3))
     paste(b, emoji("💦", 80), ART_C[0] + 360, 960 + 40 * ((t * 1.5) % 1), alpha=clamp(1 - (t * 1.5) % 1))
 
@@ -359,21 +371,51 @@ def main():
         cues.append({"id": f"boli:{name}:{len(cues)}", "f": round(at * FPS, 2), "kind": kind})
 
     starts = [s[0] for s in SCENES]
-    place("hit", 0.0, -6, "hit")
+    place("hit", 0.0, -9, "hit")
     for i in (1, 2, 3, 5, 6, 7, 8, 9):
         place("swish", starts[i] - 0.11, -14, "whoosh")    # el pico del swish en el corte
-    place("glitch", starts[4] + 0.28, -10, "hit")             # el sello de ERROR
+    place("glitch", starts[4] + rel("error", 4, 0.2) + 0.08, -12, "hit")   # el sello de ERROR
     place("pop", starts[1] + 0.06, -12, "pop")
     place("chime", starts[5] + 0.25, -10, "bell")            # entra Altissia
-    place("done", starts[6] + 1.4, -10, "bell")              # el contador llega a 500
+    place("done", starts[6] + rel("quinientos", 6, 0.55) + 0.85, -12, "bell")   # el contador llega a 500
     place("pop", starts[9] + 0.06, -12, "pop")
-    music *= 10 ** (-31 / 20) / max(1e-9, np.sqrt(np.mean(music ** 2)))   # música baja (≈ -28 LUFS): la voz va ~12 dB por encima
     fade = int(0.6 * SR); music[-fade:] *= np.linspace(1, 0, fade)
-    mix = music + fx
+    voice = np.zeros(L)
+    if VO:
+        import pyloudnorm as pyln
+        from scipy.signal import butter, sosfiltfilt
+        meter = pyln.Meter(SR)
+        v, sr = sf.read(VO, always_2d=True); assert sr == SR, "la voz tiene que estar a 48 kHz"
+        v = v.mean(1)[:L]; voice[:len(v)] = v
+        voice *= 10 ** ((-16 - meter.integrated_loudness(voice)) / 20)          # voz a -16 LUFS
+        # hueco en la música donde vive la voz (1-4 kHz, unos -5 dB)
+        mid = sosfiltfilt(butter(2, [1000, 4000], "bandpass", fs=SR, output="sos"), music)
+        music = music - 0.45 * mid
+        music *= 10 ** ((-30 - meter.integrated_loudness(music)) / 20)          # música 14 LU por debajo
+        # la música se aparta mientras habla: -7 dB, entra en 60 ms, vuelve en 400 ms
+        hop = int(0.01 * SR)
+        rms = np.sqrt(np.convolve(voice ** 2, np.ones(hop) / hop, "same"))
+        talk = (20 * np.log10(rms + 1e-9) > 20 * np.log10(np.abs(voice).max()) - 38).astype(float)
+        g = np.ones(L); duck = 10 ** (-7 / 20); cur = 1.0
+        a_c, r_c = math.exp(-1 / (0.06 * SR)), math.exp(-1 / (0.4 * SR))
+        tgt = np.where(talk > 0, duck, 1.0)
+        for i in range(0, L, 64):                                              # envolvente por bloques
+            c = a_c ** 64 if tgt[i] < cur else r_c ** 64
+            cur = tgt[i] + (cur - tgt[i]) * c; g[i:i + 64] = cur
+        music *= g
+        fx *= np.where(talk > 0, 10 ** (-3 / 20), 1.0)                          # efectos un poco más bajos bajo la voz
+    else:
+        music *= 10 ** (-31 / 20) / max(1e-9, np.sqrt(np.mean(music ** 2)))   # sin voz: música baja
+    mix = music + fx + voice
+    if VO:
+        mix *= 10 ** ((-15 - meter.integrated_loudness(mix)) / 20); k = 10 ** ((-15 - meter.integrated_loudness(music + fx + voice)) / 20)
+        music *= k; fx *= k; voice *= k
     peak = np.abs(mix).max()
-    if peak > 10 ** (-3 / 20):
-        g = 10 ** (-3 / 20) / peak; mix *= g; music *= g; fx *= g
+    if peak > 10 ** (-1.5 / 20):
+        g2 = 10 ** (-1.5 / 20) / peak; mix *= g2; music *= g2; fx *= g2; voice *= g2
     base = os.path.splitext(OUT)[0]
+    if VO:
+        sf.write(base + "_voz.wav", np.stack([voice, voice], 1), SR)
     sf.write(base + "_music.wav", np.stack([music, music], 1), SR)
     sf.write(base + "_sfx.wav", np.stack([fx, fx], 1), SR)
     wav = OUT + ".audio.wav"

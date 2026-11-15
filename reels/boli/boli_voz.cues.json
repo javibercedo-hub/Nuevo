@@ -1,0 +1,75 @@
+{
+ "fps": 30,
+ "events": [
+  {
+   "id": "boli:hit:0",
+   "f": 0.0,
+   "kind": "hit"
+  },
+  {
+   "id": "boli:swish:1",
+   "f": 62.4,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:2",
+   "f": 116.4,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:3",
+   "f": 236.4,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:4",
+   "f": 385.5,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:5",
+   "f": 442.8,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:6",
+   "f": 535.2,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:7",
+   "f": 607.8,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:swish:8",
+   "f": 662.1,
+   "kind": "whoosh"
+  },
+  {
+   "id": "boli:glitch:9",
+   "f": 336.0,
+   "kind": "hit"
+  },
+  {
+   "id": "boli:pop:10",
+   "f": 67.5,
+   "kind": "pop"
+  },
+  {
+   "id": "boli:chime:11",
+   "f": 396.3,
+   "kind": "bell"
+  },
+  {
+   "id": "boli:done:12",
+   "f": 485.7,
+   "kind": "bell"
+  },
+  {
+   "id": "boli:pop:13",
+   "f": 667.2,
+   "kind": "pop"
+  }
+ ]
+}

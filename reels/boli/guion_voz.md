@@ -51,3 +51,19 @@ Etiqueta a quien sigue cotejando albaranes con boli.
 - Si quieres rehacer el equilibrio en tu editor (CapCut, Premiere, etc.), tienes las pistas
   sueltas: `boli_music.wav` (música) y `boli_sfx.wav` (efectos).
 - La voz no debe pisar el primer fotograma: el gancho en pantalla ya funciona en silencio.
+
+## Versión montada con la locución (boli_voz.mp4)
+
+Locución: `locucion_elevenlabs.mp3` (ElevenLabs, voz en castellano). Cómo se ha montado:
+
+1. `faster-whisper` transcribe la voz palabra a palabra (`words.json`).
+2. `timing.py words.json voz48.wav timing.json` saca dónde empieza cada frase (ajustado con la
+   energía de la voz) y las palabras clave ("frío", "error", "adiós", "500", "café", "37").
+3. `music.py` se genera a `7*4*60/inicio_Altissia` BPM, para que el cambio de la música caiga
+   justo en "Tu compañera usa Altissia".
+4. `build.py ... timing.json voz48.wav`: cada escena entra 0,12 s antes de su frase, los gestos
+   caen en su palabra, la voz va a -16 LUFS, la música 14 LU por debajo con un hueco en 1-4 kHz
+   y se aparta 7 dB mientras habla (vuelve en las pausas).
+
+Comprobado con earshot (`boli_voz_sheet.png`): -13,7 LUFS, pico -1,5 dBTP; la voz queda
+una mediana de 20 dB por encima de la música mientras habla.

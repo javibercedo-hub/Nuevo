@@ -3,14 +3,15 @@
 Parte A (0 - 7 compases): re menor, marimba nerviosa en corcheas, bajo pizzicato, palmas.
 Parón cómico de medio tiempo antes del cambio de escena.
 Parte B (desde el compás 7): fa mayor, más luminosa, glockenspiel encima, acorde final con cola.
-uso: python3 -I music.py SALIDA.wav DURACION_SEGUNDOS
+uso: python3 -I music.py SALIDA.wav DURACION_SEGUNDOS [BPM]
+(BPM = 7 * 4 * 60 / segundo en que entra Altissia, para que el cambio caiga ahí)
 """
 import sys
 import numpy as np
 import soundfile as sf
 
 SR = 48000
-BPM = 125.4                       # 7 compases = 13,4 s: el cambio cae justo en la escena de Altissia
+BPM = float(sys.argv[3]) if len(sys.argv) > 3 else 125.4   # 7 compases: el cambio cae en la escena de Altissia
 BEAT = 60 / BPM
 OUT, DUR = sys.argv[1], float(sys.argv[2])
 rng = np.random.default_rng(7)
