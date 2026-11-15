@@ -1,0 +1,139 @@
+{
+ "video": "/tmp/claude-0/-home-user-Nuevo/0fa78c92-5a24-5aa4-be96-7f1eb8a93919/scratchpad/rsfx/mudo.mp4",
+ "keep_audio": "auto",
+ "cues": [
+  {
+   "t": 0.0,
+   "label": "hit",
+   "_g": 1.0,
+   "uisfx": "drop",
+   "gain_db": 3
+  },
+  {
+   "t": 2.94,
+   "label": "pop",
+   "_g": 1.0,
+   "uisfx": "select",
+   "pack": "studio",
+   "gain_db": -4
+  },
+  {
+   "t": 4.84,
+   "label": "pop",
+   "_g": 1.0,
+   "uisfx": "select",
+   "pack": "studio",
+   "gain_db": -4,
+   "pitch": 1
+  },
+  {
+   "t": 6.81,
+   "label": "pop",
+   "_g": 1.0,
+   "uisfx": "select",
+   "pack": "studio",
+   "gain_db": -4,
+   "pitch": -1
+  },
+  {
+   "t": 8.8,
+   "label": "whoosh",
+   "_g": 1.0,
+   "uisfx": "swipe",
+   "gain_db": 0.0
+  },
+  {
+   "t": 9.15,
+   "label": "pop",
+   "_g": 1.0,
+   "uisfx": "select",
+   "pack": "studio",
+   "gain_db": -4,
+   "pitch": 2
+  },
+  {
+   "t": 11.34,
+   "label": "pop",
+   "_g": 1.0,
+   "uisfx": "select",
+   "pack": "studio",
+   "gain_db": -4,
+   "pitch": -2
+  },
+  {
+   "t": 14.01,
+   "label": "pop",
+   "_g": 1.0,
+   "uisfx": "select",
+   "pack": "studio",
+   "gain_db": -4,
+   "pitch": 1
+  },
+  {
+   "t": 16.54,
+   "label": "done",
+   "_g": 1.0,
+   "uisfx": "check",
+   "gain_db": 1
+  },
+  {
+   "t": 18.75,
+   "label": "cta",
+   "_g": 1.0,
+   "uisfx": "notification",
+   "gain_db": 2
+  }
+ ],
+ "_draft": {
+  "source": "/tmp/claude-0/-home-user-Nuevo/0fa78c92-5a24-5aa4-be96-7f1eb8a93919/scratchpad/rsfx/events.json",
+  "events": 10,
+  "thinned": 0,
+  "thinned_by_kind": {},
+  "fused": 0,
+  "routed": {
+   "hit": 1,
+   "pop": 6,
+   "whoosh": 1,
+   "done": 1,
+   "cta": 1
+  },
+  "unmapped": {},
+  "sync": {
+   "verdict": "unknown",
+   "total": 1,
+   "matched": 1
+  },
+  "stems": null,
+  "voice": null,
+  "retimed": null,
+  "baked": null,
+  "baked_strong": false,
+  "keep_audio_decision": null,
+  "declared": 10,
+  "voiced": 10,
+  "clamped_quiet": 0,
+  "layer_lufs": null,
+  "base_kind": null,
+  "screen_rec": false,
+  "music_ref": [],
+  "reference_layer": [],
+  "typing_runs": [],
+  "first_event_t": 0.0,
+  "time_map": null,
+  "unlisted_synth_onsets": [],
+  "kinds_user": {
+   "hit": {
+    "uisfx": "drop"
+   },
+   "whoosh": {
+    "uisfx": "swipe"
+   },
+   "done": {
+    "uisfx": "check"
+   },
+   "cta": {
+    "uisfx": "notification"
+   }
+  }
+ }
+}
