@@ -14,6 +14,11 @@ Jakeschincariol/instagram-agent-skill, adapted to Spanish from Spain).
   session install it with `pip install "earshot[mcp] @ git+https://github.com/Leonxlnx/earshot"`
   (needs `huggingface.co` allowed for the models; `earshot sfx` / `kit` work without them).
   `real-sound` downloads from Freesound / Mixkit, which this environment's network does not allow.
+- **Clipwing skills** (`.claude/skills/real-sfx`, `.claude/skills/hyperframes-to-after-effects`,
+  from Clipwing/skills, MIT). `real-sfx` is set up with only the 78 bundled uisfx UI sounds
+  (`config.json`, no own library yet; add one with `scripts/setup.py add-library`). Its optional
+  listening model (`listen.py install`) downloads from download.pytorch.org / huggingface.co.
+  `hyperframes-to-after-effects` needs Adobe After Effects, so it cannot run in a cloud session.
 - **Reels** live in `reels/`: each one has its `build_*.py` (python3 -I build.py SOURCE OUT.mp4 reels/sfx),
   its effects in `reels/sfx/` (`render_sfx.sh`) and its `.cues.json` for `earshot timeline --cues`.
 - Cloud sessions are ephemeral: after a skill writes or updates one of those
