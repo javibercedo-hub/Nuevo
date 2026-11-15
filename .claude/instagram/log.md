@@ -8,7 +8,7 @@ Historial de reels aprobados. Lo escribe `/ig-reel` al decir "sí" y lo lee `/ig
 - **Primera línea:** "Me piden 10 antibióticos sin receta por semana."
 - **Hook:** 77,8 STRONG · **Duración:** 30,2 s, 11 frases · **Humanizer:** 58,8 REVIEW
 - **Formato:** voz en off / detrás del mostrador
-- **Estado:** guion aprobado, pendiente de grabar
+- **Estado:** vídeo de solo texto generado (`reels/2026-11-15-antibiotico/reel-antibiotico.mp4`, 38 s, sin audio: música en Instagram). Pendiente de publicar.
 
 ```
 Me piden 10 antibióticos sin receta por semana.

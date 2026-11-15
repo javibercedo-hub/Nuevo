@@ -1,0 +1,17 @@
+{
+  "label": "FARMACIA · SANTANDER",
+  "hold_last": 1.5,
+  "beats": [
+    {"text": "Me piden *10* antibióticos sin receta por semana."},
+    {"text": "A los 10, *no.*", "dur": 2.0},
+    {"text": "Una clienta me dijo: *«El jefe me lo da sin receta».*"},
+    {"text": "El jefe soy *yo.*", "dur": 2.0},
+    {"text": "El antibiótico mata *bacterias.* Nada más."},
+    {"text": "Y casi todos los catarros que veo son *virus.*"},
+    {"text": "Si lo tomas sin necesitarlo, las bacterias *aprenden* a resistirlo."},
+    {"text": "Y cuando de verdad lo necesites, puede que *no funcione.*"},
+    {"text": "Por eso en España solo se da *con receta.*"},
+    {"text": "¿Dudas? *Pásate* y te lo explicamos."},
+    {"text": "Pero un antibiótico sin receta, *no.*"}
+  ]
+}
