@@ -20,12 +20,30 @@ python3 detect.py draft.txt                    # score it, five checks
 python3 detect.py before.txt after.txt         # prove the delta
 ```
 
-Both read `slop.json`: 154 stock words and phrases with plain-English
-replacements, 18 invisible character classes, 11 typographic substitutions and
-16 structural tells. The last block of each list is Instagram-specific, the
-vocabulary that only shows up in captions and voiceovers. It is meant to be
-edited. If the user has a word they always use that the lexicon strips, take it
-out of the file.
+Both read `slop.json`: 154 English and 201 Spanish stock words and phrases with
+plain replacements, 18 invisible character classes, 11 typographic
+substitutions and 30 structural tells. The last block of each list is
+Instagram-specific, the vocabulary that only shows up in captions and
+voiceovers. It is meant to be edited. If the user has a word they always use
+that the lexicon strips, take it out of the file.
+
+## Spanish (from Spain)
+
+Both scripts detect the draft's language and apply only that language's
+entries; force it with `--lang es` or `--lang en` on a short or mixed draft.
+The report header shows which one ran. In Spanish:
+
+- The lexicon is Spain's AI Spanish: "en el vertiginoso mundo actual",
+  "cabe destacar que", "potenciar", "sinergia", "llevar al siguiente nivel",
+  "brindar", plus the Instagram block ("sígueme para más", "en este vídeo te
+  voy a enseñar", "deja de hacer scroll"). Replacements keep gender and number.
+- **Voseo and Latin American vocabulary are flagged**, not rewritten: "tenés",
+  "mirá", "fijate", "computadora", "ustedes", "lindo". Rewrite them in Spain's
+  Spanish (tú / vosotros, ordenador, bonito). Only the unambiguous ones are
+  swapped automatically ("celular" → "móvil", "ahorita" → "ahora").
+- VOICE counts tú / vosotros / yo and their clitics instead of contractions,
+  which Spanish does not have.
+- When you rewrite flagged lines by hand, write them in Spanish from Spain too.
 
 ## Why this matters more on Instagram than it looks
 

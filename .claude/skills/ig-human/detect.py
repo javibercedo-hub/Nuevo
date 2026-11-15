@@ -33,11 +33,48 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 LEX = os.path.join(HERE, "slop.json")
 
 SENT_RE = re.compile(r"[^.!?\n]+[.!?]*")
-WORD_RE = re.compile(r"[A-Za-z']+")
+WORD_RE = re.compile(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ']+")
 CONTRACTIONS = re.compile(r"\b\w+'(?:s|t|re|ve|ll|d|m)\b", re.IGNORECASE)
 PRONOUNS = re.compile(r"\b(i|me|my|mine|we|us|our|you|your)\b", re.IGNORECASE)
-NUMBERS = re.compile(r"\b\d[\d,.]*%?\b|\$\d")
-PROPER = re.compile(r"(?<![.!?]\s)(?<!^)\b[A-Z][a-z]{2,}\b", re.MULTILINE)
+# Spanish has no contractions to count, so VOICE leans on person instead:
+# yo/tú/vosotros and the clitics that carry them (me, te, nos, os).
+PRONOUNS_ES = re.compile(
+    r"(?<!\w)(yo|me|mi|mí|mis|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras"
+    r"|tú|tu|te|ti|tus|contigo|vosotros|vosotras|os|vuestro|vuestra|vuestros|vuestras)(?!\w)",
+    re.IGNORECASE)
+NUMBERS = re.compile(r"\b\d[\d,.]*%?\b|[$€]\d")
+PROPER = re.compile(r"(?<![.!?]\s)(?<!^)\b[A-ZÁÉÍÓÚÑ][a-záéíóúüñ]{2,}\b", re.MULTILINE)
+
+# Language detection. Every lexicon entry carries a "lang" (en, es, any) and
+# only the entries for the draft's language are applied: an English
+# replacement must never touch a Spanish draft ("crucial" -> "important").
+ES_HINTS = {"de", "la", "que", "el", "en", "y", "los", "se", "del", "las", "un",
+            "por", "con", "una", "su", "para", "es", "al", "lo", "como", "más",
+            "pero", "sus", "le", "ya", "este", "esta", "porque", "muy", "también",
+            "hay", "yo", "tu", "mi", "nos", "os", "te", "vosotros", "eso", "esto"}
+EN_HINTS = {"the", "and", "of", "to", "in", "is", "that", "it", "for", "you",
+            "with", "on", "this", "was", "are", "be", "my", "i", "we", "have",
+            "but", "not", "so", "at", "your", "what", "just", "they"}
+
+
+def detect_lang(text):
+    toks = re.findall(r"[a-záéíóúüñ']+", text.lower())
+    es = sum(t in ES_HINTS for t in toks)
+    en = sum(t in EN_HINTS for t in toks)
+    if re.search(r"[ñ¿¡áéíóú]", text.lower()):
+        es += 3
+    return "es" if es > en else "en"
+
+
+def for_lang(entries, lang):
+    return [e for e in entries if e.get("lang", "en") in (lang, "any")]
+
+
+def lex_pattern(find):
+    # (?<!\w) / (?!\w) instead of \b so entries that start with "¿" or end
+    # with "?" still match at a line edge.
+    return re.compile(r"(?<!\w)" + re.escape(find).replace(r"\ ", r"\s+") + r"(?!\w)",
+                      re.IGNORECASE)
 
 
 def clamp(n):
@@ -82,15 +119,14 @@ def check_specificity(text):
     return score, f"{hits} concrete markers, {density:.1f} per 100 words (want 4+)"
 
 
-def check_slop(text, lex):
+def check_slop(text, lex, lang="en"):
     """Stock vocabulary density against the lexicon."""
     w = words(text)
     if not w:
         return 50.0, "empty"
     hits, found = 0, []
-    for entry in lex["words"] + lex["phrases"]:
-        pattern = re.compile(r"\b" + re.escape(entry["find"]).replace(r"\ ", r"\s+") + r"\b",
-                             re.IGNORECASE)
+    for entry in for_lang(lex["words"] + lex["phrases"], lang):
+        pattern = lex_pattern(entry["find"])
         n = len(pattern.findall(text))
         if n:
             hits += n
@@ -118,17 +154,17 @@ def check_fingerprint(text):
     return score, detail
 
 
-def check_voice(text, lex):
+def check_voice(text, lex, lang="en"):
     """Contractions, person, and the shapes models default to."""
     w = words(text)
     if len(w) < 25:
         return 50.0, "too short to judge"
     per100 = 100 / len(w)
     contractions = len(CONTRACTIONS.findall(text)) * per100
-    person = len(PRONOUNS.findall(text)) * per100
+    person = len((PRONOUNS_ES if lang == "es" else PRONOUNS).findall(text)) * per100
     tells = 0
     names = []
-    for s in lex["structures"]:
+    for s in for_lang(lex["structures"], lang):
         try:
             n = len(re.compile(s["regex"], re.MULTILINE).findall(text))
         except re.error:
@@ -138,14 +174,19 @@ def check_voice(text, lex):
             names.append(s["id"])
     bullets = [len(b.split()) for b in re.findall(r"(?m)^\s*[-*•]\s+(.+)$", text)]
     uniform = (len(bullets) >= 3 and statistics.pstdev(bullets) < 1.6)
-    score = (scale(contractions, human=3.0, machine=0.0) * 0.35
-             + scale(person, human=8.0, machine=1.0) * 0.35
-             + clamp(100 - tells * 22) * 0.30)
+    if lang == "es":
+        score = (scale(person, human=8.0, machine=1.0) * 0.55
+                 + clamp(100 - tells * 22) * 0.45)
+    else:
+        score = (scale(contractions, human=3.0, machine=0.0) * 0.35
+                 + scale(person, human=8.0, machine=1.0) * 0.35
+                 + clamp(100 - tells * 22) * 0.30)
     if uniform:
         score -= 12
         names.append("uniform-bullets")
-    detail = (f"{contractions:.1f} contractions, {person:.1f} personal pronouns "
-              f"per 100 words, {tells} structural tell(s)")
+    detail = ((f"{person:.1f} personal pronouns (yo/tú/vosotros) " if lang == "es" else
+               f"{contractions:.1f} contractions, {person:.1f} personal pronouns ")
+              + f"per 100 words, {tells} structural tell(s)")
     if names:
         detail += " [" + ", ".join(names[:4]) + "]"
     return clamp(score), detail
@@ -154,13 +195,14 @@ def check_voice(text, lex):
 CHECKS = ["BURSTINESS", "SPECIFICITY", "SLOP DENSITY", "FINGERPRINT", "VOICE"]
 
 
-def run(text, lex):
+def run(text, lex, lang=None):
+    lang = lang or detect_lang(text)
     results = {}
     results["BURSTINESS"] = check_burstiness(text)
     results["SPECIFICITY"] = check_specificity(text)
-    results["SLOP DENSITY"] = check_slop(text, lex)
+    results["SLOP DENSITY"] = check_slop(text, lex, lang)
     results["FINGERPRINT"] = check_fingerprint(text)
-    results["VOICE"] = check_voice(text, lex)
+    results["VOICE"] = check_voice(text, lex, lang)
     scores = [results[c][0] for c in CHECKS]
     # The weakest check drags the verdict: a detector only needs one signal.
     overall = statistics.mean(scores) * 0.6 + min(scores) * 0.4
@@ -196,7 +238,10 @@ def main():
     ap.add_argument("compare", nargs="?", help="second file, to show before/after")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--lexicon", default=LEX)
+    ap.add_argument("--lang", choices=["auto", "en", "es"], default="auto",
+                    help="draft language (default: detect)")
     args = ap.parse_args()
+    force = None if args.lang == "auto" else args.lang
 
     lex = json.load(open(args.lexicon, encoding="utf-8"))
     read = lambda p: sys.stdin.read() if p == "-" else open(p, encoding="utf-8").read()
@@ -207,21 +252,24 @@ def main():
 
     payload = []
     for name, text in targets:
-        results, overall, verdict = run(text, lex)
+        lang = force or detect_lang(text)
+        results, overall, verdict = run(text, lex, lang)
         payload.append({
             "source": name,
+            "lang": lang,
             "checks": {k: {"score": round(v[0], 1), "detail": v[1]} for k, v in results.items()},
             "human_score": round(overall, 1),
             "verdict": verdict,
         })
 
     if args.json:
-        print(json.dumps(payload if args.compare else payload[0], indent=2))
+        print(json.dumps(payload if args.compare else payload[0], indent=2, ensure_ascii=False))
         return
 
     for (name, text), p in zip(targets, payload):
-        results, overall, verdict = run(text, lex)
-        render(results, overall, verdict, label=os.path.basename(name) if args.compare else None)
+        results, overall, verdict = run(text, lex, p["lang"])
+        label = (os.path.basename(name) + "  ·  " if args.compare else "") + p["lang"]
+        render(results, overall, verdict, label=label)
     if args.compare:
         a, b = payload
         delta = b["human_score"] - a["human_score"]
