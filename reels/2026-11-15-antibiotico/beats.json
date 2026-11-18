@@ -1,0 +1,19 @@
+{
+  "label": "FARMACIA DE LA ESPERANZA · SANTANDER",
+  "logo": "../assets/logo-esperanza.png",
+  "hold_last": 1.5,
+  "beats": [
+    {"text": "Me piden *10* antibióticos sin receta por semana.", "anim": "pills10"},
+    {"text": "A los 10, *no.*", "dur": 2.2, "anim": "pills10_no"},
+    {"text": "Una clienta me dijo: *«El jefe me lo da sin receta».*", "anim": "bubble"},
+    {"text": "Aquí nadie lo da sin receta. *Ni\u00a0yo.*", "anim": "lock"},
+    {"text": "El antibiótico mata *bacterias.* Nada más.", "dur": 3.0, "anim": "kill_bacteria"},
+    {"text": "Y casi todos los catarros que veo son *virus.*", "dur": 3.2, "anim": "virus_pass"},
+    {"text": "Si lo tomas sin necesitarlo, las bacterias *aprenden* a resistirlo.", "anim": "resist"},
+    {"text": "Y cuando de verdad lo necesites, puede que *no funcione.*", "anim": "bounce"},
+    {"text": "Por eso en España solo se da *con receta.*", "anim": "prescription"},
+    {"text": "¿Dudas? *Pásate* y te lo explicamos.", "anim": "led_cross"},
+    {"text": "Pero un antibiótico sin receta, *no.*", "anim": "no_sign"},
+    {"text": "Te esperamos en la *Farmacia de la Esperanza.*", "dur": 2.4, "anim": "logo"}
+  ]
+}

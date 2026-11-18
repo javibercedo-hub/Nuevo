@@ -26,6 +26,7 @@ import json
 import re
 import sys
 import textwrap
+import unicodedata
 
 LIMIT = 2200             # Instagram's hard caption limit.
 TRUNCATE = 125           # Roughly where the feed cuts to "... more".
@@ -35,37 +36,39 @@ HASHTAG_LIMIT = 5        # Instagram's cap per post or reel since 18 Dec 2025,
                          # rather than many generic ones, can improve both your
                          # content's performance and people's experience".
 
-HASHTAG_RE = re.compile(r"(?:^|\s)(#[A-Za-z0-9_]+)")
+# Bilingual: English plus Spanish from Spain (tú / vosotros).
+HASHTAG_RE = re.compile(r"(?:^|\s)(#[A-Za-z0-9_ÁÉÍÓÚÜÑáéíóúüñ]+)")
 MENTION_RE = re.compile(r"(?:^|\s)(@[A-Za-z0-9_.]+)")
-LINK_RE = re.compile(r"https?://\S+|\bwww\.\S+|\b[a-z0-9-]+\.(?:com|co|io|net|org|ai|app)/\S*",
+LINK_RE = re.compile(r"https?://\S+|\bwww\.\S+|\b[a-z0-9-]+\.(?:com|co|io|net|org|ai|app|es)/\S*",
                      re.IGNORECASE)
 EMOJI_RE = re.compile(r"[\U0001F300-\U0001FAFF☀-➿←-⇿️]")
-CONCRETE_RE = re.compile(r"\$\s?\d|\b\d[\d,.]*\b|(?<!^)\b[A-Z][a-z]{2,}\b", re.MULTILINE)
+CONCRETE_RE = re.compile(r"[$€]\s?\d|\b\d[\d,.]*\b|(?<!^)\b[A-ZÁÉÍÓÚÑ][a-záéíóúüñ]{2,}\b",
+                         re.MULTILINE)
 
 ASKS = [
-    (re.compile(r"(?i)\bcomment (?:the word |\")?[A-Z0-9]{2,}\b"), "comment a keyword"),
-    (re.compile(r"(?i)\b(?:dm|message) me\b"), "DM me"),
-    (re.compile(r"(?i)\bsave (?:this|it)\b"), "save this"),
-    (re.compile(r"(?i)\bshare (?:this|it)\b"), "share this"),
-    (re.compile(r"(?i)\bfollow (?:me|for)\b"), "follow"),
-    (re.compile(r"(?i)\blink in (?:my )?bio\b"), "link in bio"),
-    (re.compile(r"(?i)\b(?:swipe|tap) (?:through|left|right|for|to)\b"), "swipe or tap"),
-    (re.compile(r"(?i)\btell me\b|\bwhat would you\b|\bwhich one\b"), "answer a question"),
-    # español de España
-    (re.compile(r"(?i)\bcomenta (?:la palabra |\")?[A-ZÁÉÍÓÚÑ0-9]{2,}\b"), "comment a keyword"),
-    (re.compile(r"(?i)\b(?:etiqueta|menciona) a\b"), "tag someone"),
-    (re.compile(r"(?i)\b(?:escr[íi]beme|m[aá]ndame un (?:md|dm|mensaje)|p[ií]demelo por (?:md|dm))\b"), "DM me"),
-    (re.compile(r"(?i)\bgu[aá]rd(?:alo|ate esto|a este)\b"), "save this"),
-    (re.compile(r"(?i)\bcompr[aá]rtelo|\bcomp[aá]rtelo\b|\bcomparte (?:esto|este)\b"), "share this"),
-    (re.compile(r"(?i)\bs[ií]gueme\b"), "follow"),
-    (re.compile(r"(?i)\benlace en (?:la|mi) bio\b"), "link in bio"),
-    (re.compile(r"(?i)\bdesliza\b"), "swipe or tap"),
-    (re.compile(r"(?i)\bcu[eé]ntame\b|\bdime (?:qu[eé]|cu[aá]l)\b|¿cu[aá]l (?:prefieres|eliges)\b"), "answer a question"),
+    (re.compile(r"(?i)\bcomment (?:the word |\")?[A-Z0-9]{2,}\b"
+                r"|\bcomenta(?:d)? (?:la palabra |\")?[A-ZÁÉÍÓÚÑ0-9]{2,}\b"), "comment a keyword"),
+    (re.compile(r"(?i)\b(?:dm|message) me\b|\bescr[ií]beme\b|\bm[aá]ndame un (?:mensaje|md|dm)\b"
+                r"|\bpor (?:md|dm|privado)\b"), "DM me"),
+    (re.compile(r"(?i)\bsave (?:this|it)\b|\bgu[aá]rd(?:alo|ala|a esto|adlo|ad esto)\b"), "save this"),
+    (re.compile(r"(?i)\bshare (?:this|it)\b|\bcomp[aá]rt(?:elo|ela|e esto|idlo)\b"), "share this"),
+    (re.compile(r"(?i)\bfollow (?:me|for)\b|\bs[ií]gueme\b|\bseguidnos\b|\bs[ií]guenos\b"), "follow"),
+    (re.compile(r"(?i)\blink in (?:my )?bio\b|\benlace en (?:la|mi) bio\b|\blink en (?:la|mi) bio\b"),
+     "link in bio"),
+    (re.compile(r"(?i)\b(?:swipe|tap) (?:through|left|right|for|to)\b|\bdesliza\b"), "swipe or tap"),
+    (re.compile(r"(?i)\btell me\b|\bwhat would you\b|\bwhich one\b"
+                r"|\bd[ií]me\b|\bcu[eé]ntame\b|\bcontadme\b|¿\s*(?:cu[aá]l|qu[eé] har[ií]as)"),
+     "answer a question"),
+    (re.compile(r"(?i)\btag (?:a|someone|a friend)\b|\b(?:etiqueta|menciona) a\b"), "tag someone"),
+    # A local business's real ask is a visit.
+    (re.compile(r"(?i)\bcome (?:by|in)\b|\bvisit us\b|\bp[aá]sate\b|\bpasaos\b|\bven a vernos\b"
+                r"|\bvenid a vernos\b"), "visit"),
 ]
 
 FILLER_TAGS = {"#viral", "#fyp", "#explore", "#explorepage", "#foryou", "#foryoupage",
                "#trending", "#instagood", "#love", "#follow", "#like4like", "#reels",
-               "#reelsinstagram", "#viralreels", "#instadaily"}
+               "#reelsinstagram", "#viralreels", "#instadaily",
+               "#parati", "#paratí", "#explorar", "#tendencia", "#viralespaña", "#reelsespaña"}
 
 
 def visible_window(text, cut):
@@ -165,10 +168,14 @@ def analyse(text, cut=TRUNCATE, keywords=None):
         + (" - reads as decoration" if density > 4 else ""))
 
     if keywords:
-        low = stripped.lower()
-        found = [k for k in keywords if k.lower() in low]
-        missing = [k for k in keywords if k.lower() not in low]
-        in_window = [k for k in found if k.lower() in window.lower()]
+        # Accent-insensitive: people type "antibiotico" as often as "antibiótico".
+        def fold(s):
+            s = unicodedata.normalize("NFD", s.lower())
+            return "".join(c for c in s if unicodedata.category(c) != "Mn")
+        low = fold(stripped)
+        found = [k for k in keywords if fold(k) in low]
+        missing = [k for k in keywords if fold(k) not in low]
+        in_window = [k for k in found if fold(k) in fold(window)]
         status = "PASS" if not missing else ("WARN" if found else "FAIL")
         add("SEARCH TERMS", status,
             f"{len(found)}/{len(keywords)} present"
