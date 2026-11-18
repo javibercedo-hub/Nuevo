@@ -59,6 +59,7 @@ ASKS = [
     (re.compile(r"(?i)\btell me\b|\bwhat would you\b|\bwhich one\b"
                 r"|\bd[ií]me\b|\bcu[eé]ntame\b|\bcontadme\b|¿\s*(?:cu[aá]l|qu[eé] har[ií]as)"),
      "answer a question"),
+    (re.compile(r"(?i)\btag (?:a|someone|a friend)\b|\b(?:etiqueta|menciona) a\b"), "tag someone"),
     # A local business's real ask is a visit.
     (re.compile(r"(?i)\bcome (?:by|in)\b|\bvisit us\b|\bp[aá]sate\b|\bpasaos\b|\bven a vernos\b"
                 r"|\bvenid a vernos\b"), "visit"),
